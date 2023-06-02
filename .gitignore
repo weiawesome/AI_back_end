@@ -1,0 +1,3 @@
+celery/OCR/predict_model
+celery/OCR/detect_model
+celery/ASR/whisper

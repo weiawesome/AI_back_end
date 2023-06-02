@@ -1,0 +1,83 @@
+version: '3'
+services:
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+
+  redis:
+    build:
+      context: ./redis
+    volumes:
+      - redis_data:/data
+  redis_backup:
+    build:
+      context: redis_backup
+    volumes:
+      - redis_backup_volume:/backup
+    depends_on:
+      - redis
+
+
+  mysql:
+    build:
+      context: ./my_sql
+    volumes:
+      - my_sql_data:/var/lib/mysql
+  my_sql_backup:
+    build:
+      context: my_sql_backup
+    volumes:
+      - my_sql_backup_volume:/backup
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: Wei891013
+      MYSQL_DATABASE: sqldb
+    depends_on:
+      - mysql
+
+
+  flask:
+    build:
+      context: ./Back_end_Flask_Server
+    environment:
+      - JWT_SECRET_KEY=Wei891013
+      - SQL_USER=wei
+      - SQL_PWD=Wei891013
+      - DB_NAME=sqldb
+      - EXPIRE_DAYS=14
+    depends_on:
+      - nginx
+      - mysql
+      - redis
+    volumes:
+      - original_audio:/original_audio
+      - original_graph:/original_graph
+      - ./Security:/Security
+  celery:
+    build:
+      context: ./celery
+    environment:
+      - SQL_USER=wei
+      - SQL_PWD=Wei891013
+      - DB_NAME=sqldb
+      - USER_MAIL=open891013@gmail.com
+      - USER_PWD=sbdxfzkmaxtesqec
+    volumes:
+      - original_audio:/original_audio
+      - original_graph:/original_graph
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ "gpu" ]
+
+volumes:
+  my_sql_data:
+  my_sql_backup_volume:
+  redis_data:
+  redis_backup_volume:
+  original_audio:
+  original_graph:

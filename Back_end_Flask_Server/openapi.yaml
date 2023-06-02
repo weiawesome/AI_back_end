@@ -1,0 +1,705 @@
+openapi: 3.0.3
+info:
+  title: AI-project-Server - OpenAPI 3.0
+  description: our project for AI-website and App
+  termsOfService: http://140.136.151.82/api
+  contact:
+    email: open891013@gmail.com
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: https://swagger.io
+  
+servers:
+  - url: http://140.136.151.82
+
+tags:
+- name: User
+  description: Operations about users
+- name: NLP_edit
+  description: NLP operations to get new reply.
+- name: Access_method
+  description: About key to use Chat-GPT
+- name: Mail
+  description: To verification the email exist
+- name: Files
+  description: To get the result of files.
+- name: AI_predict
+  description: To upload file and use specific AI model.
+paths:
+  /api/signup:
+    post:
+      tags:
+        - User
+      summary: Sign up to the website or app.
+      description: To sign up an account in the db and return the JWT in httponly cookie.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                gender:
+                  type: string
+                mail:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              example:
+                name: "wei"
+                gender: "male"
+                mail: "wei891013@gmail.com"
+                password: "wei_pwd"
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: token=abc123; Path=/; HttpOnly
+              description: The JWT, set as HttpOnly
+        '400':
+          description: Invalid status value
+        '401':
+          description: User have been signed up.
+
+  /api/login/web:
+    post:
+      tags:
+        - User
+      summary: Login to the website.
+      description: To login to an account in the db and return the JWT in httponly cookie.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mail:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              example:
+                mail: "wei891013@gmail.com"
+                password: "wei_pwd"
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: token=abc123; Path=/; HttpOnly
+              description: The JWT, set as HttpOnly
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  gender:
+                    type: string
+        '400':
+          description: Invalid status value
+
+  /api/login/app:
+    post:
+      tags:
+        - User
+      summary: Login to the app.
+      description: To login to an account in the db and return the JWT.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mail:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              example:
+                mail: "wei891013@gmail.com"
+                password: "wei_pwd"
+
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  gender:
+                    type: string
+                  token:
+                    type: string
+        '400':
+          description: Invalid status value
+
+  /api/logout:
+    delete:
+      tags:
+        - User
+      security:
+        - BearerAuth: []
+      summary: To log out in the website or app.
+      description: Logout account and remove the JWT token in redis.
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      responses:
+        '201':
+          description: Successful operation
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/files:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: []
+      summary: Return a file's information
+      description: File's information can be provided, according to file_id
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file_time:
+                          type: string
+                          description: The file time build.
+                        file_id:
+                          type: string
+                          description:  The file ID.
+                        status:
+                          type: boolean
+                          description: The file's current status.
+                        file_type:
+                          type: integer
+                          description: The file type.
+
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/files/ASR:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: []
+      summary: Return a ASR file's information.
+      description: The ASR file's information can be provided, according to file_id.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file_time:
+                          type: string
+                          description: The file time build.
+                        file_id:
+                          type: string
+                          description: The file ID.
+                        status:
+                          type: boolean
+                          description: The file's current status.
+                        file_type:
+                          type: integer
+                          description:  The file type.
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/files/OCR:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: []
+      summary: Return a OCR file's information.
+      description: The OCR file's information can be provided, according to file_id.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  datas:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file_time:
+                          type: string
+                          description: The file time build.
+                        file_id:
+                          type: string
+                          description: The file ID.
+                        status:
+                          type: boolean
+                          description: The file's current status.
+                        file_type:
+                          type: integer
+                          description: The file type.
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/files/ASR/{file_id}:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: []
+      summary: Return a ASR file's information.
+      description: The ASR file's information can be provided, according to ASR_file_id.
+      parameters:
+        - name: file_id
+          in: path
+          description: file_id that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prompt:
+                    type: string
+                    description: The prompt for ASR.
+                  content:
+                    type: string
+                    description: The file content.
+                  summarize:
+                    type: string
+                    description: The article's summary.
+                  details:
+                    type: array
+                    items:
+                      type: string
+                      description: The messages for ASR file.
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Not exist.
+        '422':
+          description: JWT is invalid.
+
+  /api/files/OCR/{file_id}:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: []
+      summary: Return a OCR file's information.
+      description: The OCR file's information can be provided, according to OCR_file_id.
+      parameters:
+        - name: file_id
+          in: path
+          description: OCR_file_id that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  prompt:
+                    type: string
+                    description: The prompt for OCR.
+                  content:
+                    type: string
+                    description: The file content.
+                  summarize:
+                    type: string
+                    description: The article's summary.
+                  details:
+                    type: array
+                    items:
+                      type: string
+                      description: The messages for OCR file.
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Not exist.
+        '422':
+          description: JWT is invalid.
+
+  /api/NLP_edit/ASR/{file_id}:
+    put:
+      tags:
+        - NLP_edit
+      security:
+        - BearerAuth: []
+      summary: Use chat-gpt to summarize the content.
+      description: Use chat-gpt to summarize the content.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          description: The ID of the ASR file.
+          schema:
+            type: string
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: The prompt give to the chat-gpt.
+                content:
+                  type: string
+                  description: the content of ASR.
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request
+        '401':
+          description: Not authorize.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Not exist.
+        '422':
+          description: JWT is invalid.
+
+  /api/NLP_edit/OCR/{file_id}:
+    put:
+      tags:
+        - NLP_edit
+      security:
+        - BearerAuth: []
+      summary: Use chat-gpt to judge and give suggestion to the essay.
+      description: Use chat-gpt to judge and give suggestion to the essay.
+      parameters:
+        - name: file_id
+          in: path
+          required: true
+          description: The ID of the OCR file.
+          schema:
+            type: string
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: The prompt give to the chat-gpt.
+                content:
+                  type: string
+                  description: The content of essay.
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid request
+        '401':
+          description: Not authorize.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Not exist.
+        '422':
+          description: JWT is invalid.
+
+  /api/Access_method/access_token:
+    put:
+      tags:
+        - Access_method
+      security:
+        - BearerAuth: []
+      summary: Get Access Token.
+      description: Get Access token.
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                access_token:
+                  type: string
+                  description: The access token to be verified.
+                AES_key:
+                  type: string
+                  format: binary
+                  minLength: 256
+                  maxLength: 256
+      responses:
+        '200':
+          description: Successful verification
+        '400':
+          description: Invalid access token
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/Access_method/api_key:
+    put:
+      tags:
+        - Access_method
+      security:
+        - BearerAuth: [ ]
+      summary: Get api key.
+      description: Get api key.
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                api_key:
+                  type: string
+                  description: The access token to be verified.
+                AES_key:
+                  type: string
+                  format: binary
+                  minLength: 256
+                  maxLength: 256
+      responses:
+        '200':
+          description: Successful verification
+        '400':
+          description: Invalid access token
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/verification:
+    post:
+      tags:
+        - Mail
+      summary: Send the verification code to the email.
+      description: Send the verification code to the email.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                mail:
+                  type: string
+                  format: email
+                  description: The email to sent.
+              example:
+                mail: "open891013@gmail.com"
+      responses:
+        '200':
+          description: Successful verification
+        '400':
+          description: Invalid access token
+
+  /api/verification/{mail}/{code}:
+    get:
+      tags:
+        - Mail
+      summary: Verify the email.
+      description: Verify the email.
+      parameters:
+        - name: mail
+          in: path
+          description: The email to verify
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: code
+          in: path
+          description: The verification code
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful verification
+        '400':
+          description: Invalid access token
+        '404':
+          description: Not exist.
+
+  /api/predict/ASR:
+    post:
+      tags:
+        - AI_predict
+      security:
+        - BearerAuth: [ ]
+      summary: Update ASR file to application.
+      description: To update the needed details of ASR file.
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Tell AI what is important.
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Fail to update ASR file.
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/predict/OCR:
+    post:
+      tags:
+        - AI_predict
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      summary: Update OCR file to application.
+      description: To update the needed details of OCR file.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                  description: Tell AI the question.
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Fail to update OCR file.
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
