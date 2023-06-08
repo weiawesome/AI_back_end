@@ -29,3 +29,8 @@ Api_key_args={
 Email_args={
     "mail":fields.Str(required=True)
 }
+
+Information_args={
+    "name":fields.Str(required=True),
+    "gender":fields.Str(required=True)
+}

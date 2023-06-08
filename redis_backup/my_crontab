@@ -1,0 +1,1 @@
+0 3 * * * /redis_backup.sh

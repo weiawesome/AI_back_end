@@ -4,7 +4,9 @@ FROM nvidia/cuda:12.0.0-cudnn8-devel-ubuntu22.04
 RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-dev
-# 設置工作目錄
+
+# Create a new user "appuser"
+RUN adduser --disabled-password --gecos '' celery_user
 WORKDIR /celery
 
 COPY requirements.txt .
@@ -17,5 +19,6 @@ RUN pip3 install torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # 將應用程式代碼複製到工作目錄
 COPY . .
+USER celery_user
 
 CMD ["celery", "-A", "tasks", "worker","--loglevel=info","-c","5"]

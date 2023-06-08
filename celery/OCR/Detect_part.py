@@ -1,7 +1,7 @@
 import time
 import torch
 from craft_text_detector import  get_prediction,export_detected_regions, export_extra_results
-
+import numpy as np
 def get_Boxes(image,output_dir= 'outputs/'):
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     start_time=time.time()
@@ -33,6 +33,14 @@ def get_Boxes(image,output_dir= 'outputs/'):
     print('文字偵測花費: ',end_time-start_time,'秒')
     boxes = (prediction_result['boxes'])
     result = []
+    data = []
     for i in boxes:
-        result.append([int(i[0][0]),int(i[0][1]),int(i[2][0]),int(i[2][1])])
-    return result
+        result.append([int(i[0][0]), int(i[0][1]), int(i[2][0]), int(i[2][1])])
+        data.append(int(i[0][0]))
+    q1 = np.percentile(data, 25)
+    q3 = np.percentile(data, 75)
+    iqr = q3 - q1
+    lower_bound = q1 - 1.5 * iqr
+    upper_bound = q3 + 1.5 * iqr
+    outlier = [i for i in range(len(data)) if data[i] > upper_bound or data[i] < lower_bound]
+    return result,outlier

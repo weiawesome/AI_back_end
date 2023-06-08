@@ -3,13 +3,17 @@ import hashlib
 import os
 import uuid
 
-import redis
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.backends import default_backend
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import unpad
+
+import time
+import requests
+from jose import jwt, jwk
+from jose.utils import base64url_decode
 def rotate_image_based_on_exif(image):
     try:
         exif_data = image._getexif()
@@ -98,8 +102,24 @@ def decrypt(encrypted_data,encrypted_key):
     result=AES_decrypt(origin_key,origin_data)
     return result
 
-def in_blacklist(jwt):
-    redis_db_blacklist = redis.StrictRedis(host='redis', port=6379, db=3)
-    result=True if redis_db_blacklist.get(jwt) else False
-    redis_db_blacklist.close()
-    return result
+def google_jwt_auth(id_token):
+    response = requests.get('https://www.googleapis.com/oauth2/v3/certs')
+    jwks = response.json()
+
+    header = jwt.get_unverified_header(id_token)
+    kid = header['kid']
+
+    rsa_key = next(item for item in jwks['keys'] if item["kid"] == kid)
+
+    public_key = jwk.construct(rsa_key)
+    message, encoded_signature = str(id_token).rsplit('.', 1)
+    decoded_signature = base64url_decode(encoded_signature.encode())
+
+    if not public_key.verify(message.encode(), decoded_signature):
+        return False,''
+    claims = jwt.get_unverified_claims(id_token)
+    if time.time() > claims['exp']:
+        return False,''
+    if claims['iss']!='https://accounts.google.com' or claims['aud']!=os.getenv('GOOGLE_CLIENT_ID'):
+        return False,''
+    return True,claims

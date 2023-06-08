@@ -1,17 +1,17 @@
 openapi: 3.0.3
 info:
-  title: AI-project-Server - OpenAPI 3.0
-  description: our project for AI-website and App
-  termsOfService: http://140.136.151.82/api
+  title: Study-Savvy-Server - OpenAPI 3.0
+  description: The API document for Study Savvy.
+  termsOfService: https://studysavvy.ddns.net/api
   contact:
     email: open891013@gmail.com
   version: 1.0.0
 externalDocs:
-  description: Find out more about Swagger
-  url: https://swagger.io
+  description: See our UI
+  url: https://www.figma.com/file/u15EBmHQSeixvpN67B71dm/%E7%95%A2%E5%B0%88?type=design&node-id=0%3A1&t=tFdC8pcy6VSyKkBX-1
   
 servers:
-  - url: http://140.136.151.82
+  - url: https://studysavvy.ddns.net
 
 tags:
 - name: User
@@ -26,6 +26,10 @@ tags:
   description: To get the result of files.
 - name: AI_predict
   description: To upload file and use specific AI model.
+- name: Oauth
+  description: To login with oauth.
+- name: Information
+  description: To get and update personal information.
 paths:
   /api/signup:
     post:
@@ -44,6 +48,10 @@ paths:
                   type: string
                 gender:
                   type: string
+                  enum:
+                    - "male"
+                    - "female"
+                    - "other"
                 mail:
                   type: string
                   format: email
@@ -98,15 +106,6 @@ paths:
                 type: string
                 example: token=abc123; Path=/; HttpOnly
               description: The JWT, set as HttpOnly
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  name:
-                    type: string
-                  gender:
-                    type: string
         '400':
           description: Invalid status value
 
@@ -140,10 +139,6 @@ paths:
               schema:
                 type: object
                 properties:
-                  name:
-                    type: string
-                  gender:
-                    type: string
                   token:
                     type: string
         '400':
@@ -174,14 +169,26 @@ paths:
         '422':
           description: JWT is invalid.
 
-  /api/files:
+  /api/oauth/web/google:
     get:
       tags:
-        - Files
+        - Oauth
+      summary: Login to the website.
+      description: To login to an account in the db and return the JWT in httponly cookie.
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Invalid status value
+
+  /api/oauth/app/google:
+    get:
+      tags:
+        - Oauth
+      summary: Login to the app with google.
       security:
-        - BearerAuth: []
-      summary: Return a file's information
-      description: File's information can be provided, according to file_id
+        - BearerAuth: [ ]
+      description: To login to an account with google and in app.
       responses:
         '200':
           description: Successful operation
@@ -190,6 +197,148 @@ paths:
               schema:
                 type: object
                 properties:
+                  token:
+                    type: string
+        '400':
+          description: Invalid status value
+
+  /api/oauth/authorize/google/:
+    get:
+      tags:
+        - Oauth
+      summary: Login to the website.
+      description: To login to an account in the db and return the JWT in httponly cookie.
+      responses:
+        '200':
+          description: Successful operation
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: token=abc123; Path=/; HttpOnly
+              description: The JWT, set as HttpOnly
+        '400':
+          description: Invalid status value
+
+  /api/information:
+    get:
+      tags:
+        - Information
+      security:
+        - BearerAuth: [ ]
+      summary: Return personal information
+      description: Return personal information
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  mail:
+                    type: string
+                  gender:
+                    type: string
+                    enum:
+                      - "male"
+                      - "female"
+                      - "other"
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+        '404':
+          description: Not found.
+
+  /api/information/update:
+    put:
+      tags:
+        - Information
+      security:
+        - BearerAuth: [ ]
+      summary: Update personal information
+      description: Update personal information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: the user's name.
+                gender:
+                  type: string
+                  enum:
+                    - "male"
+                    - "female"
+                    - "other"
+              example:
+                name: "wei"
+                gender: "male"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  mail:
+                    type: string
+                  gender:
+                    type: string
+                    enum:
+                      - "male"
+                      - "female"
+                      - "other"
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+        '404':
+          description: Not found.
+
+  /api/files:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: []
+      summary: Return a file's information
+      description: File's information can be provided, according to file_id
+      parameters:
+        - name: page
+          in: query
+          description: The page number to retrieve.
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_pages:
+                    type: integer
+                    description: The total number of pages.
+                  current_page:
+                    type: integer
+                    description: The current page number.
                   datas:
                     type: array
                     items:
@@ -223,6 +372,14 @@ paths:
         - BearerAuth: []
       summary: Return a ASR file's information.
       description: The ASR file's information can be provided, according to file_id.
+      parameters:
+        - name: page
+          in: query
+          description: The page number to retrieve.
+          required: false
+          schema:
+            type: integer
+            default: 1
       responses:
         '200':
           description: Successful operation
@@ -231,6 +388,12 @@ paths:
               schema:
                 type: object
                 properties:
+                  total_pages:
+                    type: integer
+                    description: The total number of pages.
+                  current_page:
+                    type: integer
+                    description: The current page number.
                   datas:
                     type: array
                     items:
@@ -263,6 +426,14 @@ paths:
         - BearerAuth: []
       summary: Return a OCR file's information.
       description: The OCR file's information can be provided, according to file_id.
+      parameters:
+        - name: page
+          in: query
+          description: The page number to retrieve.
+          required: false
+          schema:
+            type: integer
+            default: 1
       responses:
         '200':
           description: Successful operation
@@ -271,6 +442,12 @@ paths:
               schema:
                 type: object
                 properties:
+                  total_pages:
+                    type: integer
+                    description: The total number of pages.
+                  current_page:
+                    type: integer
+                    description: The current page number.
                   datas:
                     type: array
                     items:
@@ -295,66 +472,18 @@ paths:
         '422':
           description: JWT is invalid.
 
-  /api/files/ASR/{file_id}:
+  /api/files/{file_id}:
     get:
       tags:
         - Files
       security:
         - BearerAuth: []
-      summary: Return a ASR file's information.
-      description: The ASR file's information can be provided, according to ASR_file_id.
+      summary: Return a file's information.
+      description: The file's information can be provided, according to file_id.
       parameters:
         - name: file_id
           in: path
           description: file_id that need to be considered for filter
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  prompt:
-                    type: string
-                    description: The prompt for ASR.
-                  content:
-                    type: string
-                    description: The file content.
-                  summarize:
-                    type: string
-                    description: The article's summary.
-                  details:
-                    type: array
-                    items:
-                      type: string
-                      description: The messages for ASR file.
-        '400':
-          description: Invalid status value
-        '401':
-          description: Not authorize.
-        '403':
-          description: Forbidden.
-        '404':
-          description: Not exist.
-        '422':
-          description: JWT is invalid.
-
-  /api/files/OCR/{file_id}:
-    get:
-      tags:
-        - Files
-      security:
-        - BearerAuth: []
-      summary: Return a OCR file's information.
-      description: The OCR file's information can be provided, according to OCR_file_id.
-      parameters:
-        - name: file_id
-          in: path
-          description: OCR_file_id that need to be considered for filter
           required: true
           schema:
             type: string
@@ -380,6 +509,74 @@ paths:
                     items:
                       type: string
                       description: The messages for OCR file.
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Not exist.
+        '422':
+          description: JWT is invalid.
+
+  /api/files/resources/audio/{file_id}:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: [ ]
+      summary: Return audio.
+      description: Return audio.
+      parameters:
+        - name: file_id
+          in: path
+          description: file_id that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            audio/mpeg:
+              schema:
+                type: string
+                format: binary
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Not exist.
+        '422':
+          description: JWT is invalid.
+
+  /api/files/resources/graph/{file_id}:
+    get:
+      tags:
+        - Files
+      security:
+        - BearerAuth: [ ]
+      summary: Return image.
+      description: Return image.
+      parameters:
+        - name: file_id
+          in: path
+          description: file_id that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
         '400':
           description: Invalid status value
         '401':

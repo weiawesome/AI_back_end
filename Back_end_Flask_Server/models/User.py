@@ -9,7 +9,7 @@ class User(db.Model):
     pwd = db.Column(db.String(64), nullable=True)
     salt = db.Column(db.BINARY(16), nullable=True)
     name = db.Column(db.String(50), nullable=False)
-    gender = db.Column(Enum('male', 'female', 'other'), nullable=False)
+    gender = db.Column(Enum('male', 'female', 'other'),default='other', nullable=False)
 
     files = relationship("File", back_populates="user", cascade="all, delete-orphan")
     api_key = relationship("Api_key", back_populates="user",uselist=False, cascade="all, delete-orphan")

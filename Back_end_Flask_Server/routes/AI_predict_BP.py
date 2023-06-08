@@ -1,16 +1,19 @@
 import io
 import os
 import uuid
+
+import redis
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from db import db
 from models.File import File
 from models.User import User
-from utils import decrypt, strid2byte,in_blacklist
+from utils import decrypt, strid2byte
 from tasks import ASR_predict,OCR_predict
 
 ai_predict_bp = Blueprint('AI_predict', __name__)
+redis_db_blacklist = redis.StrictRedis(host='redis', port=6379, db=3,password=os.getenv('REDIS_PASSWORD'))
 @ai_predict_bp.route('/api/predict/ASR', methods=['POST'])
 @jwt_required()
 def ASR_predict_route():
@@ -18,11 +21,11 @@ def ASR_predict_route():
     result = True
     if auth_header:
         raw_jwt_headers = auth_header.split(' ')[1]
-        result = result and in_blacklist(raw_jwt_headers)
-        print(raw_jwt_headers)
+        result = result and redis_db_blacklist.get(raw_jwt_headers)
+        
     if 'access_token_cookie' in request.cookies:
         raw_jwt_cookie = request.cookies['access_token_cookie']
-        result = result and in_blacklist(raw_jwt_cookie)
+        result = result and redis_db_blacklist.get(raw_jwt_cookie)
     if result:
         return '', 422
     output_path='/original_audio'
@@ -36,7 +39,7 @@ def ASR_predict_route():
     if file:
         filename = secure_filename(file.filename)
         file_type=filename.split('.')[-1]
-        if file_type=='mp3':
+        if file_type=='mp3' or file_type=='m4a' or file_type=='wav':
             id = str(uuid.uuid4())
             filepath = os.path.join(output_path, id+'.mp3')
             file.save(filepath)
@@ -68,11 +71,11 @@ def OCR_predict_route():
     result = True
     if auth_header:
         raw_jwt_headers = auth_header.split(' ')[1]
-        result = result and in_blacklist(raw_jwt_headers)
-        print(raw_jwt_headers)
+        result = result and redis_db_blacklist.get(raw_jwt_headers)
+        
     if 'access_token_cookie' in request.cookies:
         raw_jwt_cookie = request.cookies['access_token_cookie']
-        result = result and in_blacklist(raw_jwt_cookie)
+        result = result and redis_db_blacklist.get(raw_jwt_cookie)
     if result:
         return '', 422
     output_path='/original_graph'

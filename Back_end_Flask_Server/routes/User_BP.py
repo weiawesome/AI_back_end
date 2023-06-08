@@ -4,17 +4,15 @@ import redis
 from flask import Blueprint, make_response, request
 from db import db
 from flask_jwt_extended import create_access_token, set_access_cookies, jwt_required, unset_jwt_cookies
-from request_schema import Login_args
+from request_schema import Login_args,Signup_args
 from webargs.flaskparser import use_args
 from models.User import User
-from response_schema import Login_response_web,Login_response_app
-from request_schema import Signup_args
-from utils import verify_password, hash_password
+from response_schema import Login_response_app
+from utils import verify_password, hash_password,google_jwt_auth
 
-from utils import in_blacklist
 
 user_bp = Blueprint('User', __name__)
-redis_db_blacklist = redis.StrictRedis(host='redis', port=6379, db=3)
+redis_db_blacklist = redis.StrictRedis(host='redis', port=6379, db=3,password=os.getenv('REDIS_PASSWORD'))
 @user_bp.route('/api/login/web', methods=['POST'])
 @use_args(Login_args)
 def login_web(args):
@@ -29,11 +27,7 @@ def login_web(args):
         token = create_access_token(identity=mail)
     else:
         return '',401
-    gender=user.gender
-    name=user.name
-    result=Login_response_web(name=name,gender=gender)
-    json_result=result.json()
-    response = make_response(json_result)
+    response = make_response('')
     set_access_cookies(response, token)
     return response
 
@@ -43,7 +37,7 @@ def login_app(args):
     mail=args['mail']
     pwd=args['password']
     user = db.session.get(User, mail)
-    if (user == None):
+    if user == None:
         return '', 401
     salt = user.salt
     hash_pwd = user.pwd
@@ -51,10 +45,8 @@ def login_app(args):
         token = create_access_token(identity=mail)
     else:
         return '', 401
-    gender = user.gender
-    name = user.name
-    result = Login_response_app(name=name, gender=gender,token=token)
-    json_result = result.json()
+    result = Login_response_app(token=token)
+    json_result = result.json(ensure_ascii=False)
     return json_result
 
 @user_bp.route('/api/logout',methods=['DELETE'])
@@ -64,11 +56,10 @@ def logout():
     result = True
     if auth_header:
         raw_jwt_headers = auth_header.split(' ')[1]
-        result = result and in_blacklist(raw_jwt_headers)
-        print(raw_jwt_headers)
+        result = result and redis_db_blacklist.get(raw_jwt_headers)
     if 'access_token_cookie' in request.cookies:
         raw_jwt_cookie = request.cookies['access_token_cookie']
-        result = result and in_blacklist(raw_jwt_cookie)
+        result = result and redis_db_blacklist.get(raw_jwt_cookie)
     if result:
         return '', 422
     if auth_header:

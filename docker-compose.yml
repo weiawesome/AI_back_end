@@ -5,12 +5,18 @@ services:
       context: ./nginx
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./SSL:/SSL
 
   redis:
     build:
       context: ./redis
     volumes:
       - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=Wei891013
+
   redis_backup:
     build:
       context: redis_backup
@@ -18,13 +24,21 @@ services:
       - redis_backup_volume:/backup
     depends_on:
       - redis
-
+    environment:
+      - REDIS_PASSWORD=Wei891013
 
   mysql:
     build:
       context: ./my_sql
     volumes:
       - my_sql_data:/var/lib/mysql
+      - ./SSL:/SSL
+    environment:
+      - MYSQL_ROOT_PASSWORD=Wei891013
+      - DATABASE_NAME=sqldb
+      - DATABASE_USER=wei
+      - DATABASE_PASS=Wei891013
+
   my_sql_backup:
     build:
       context: my_sql_backup
@@ -48,6 +62,11 @@ services:
       - SQL_PWD=Wei891013
       - DB_NAME=sqldb
       - EXPIRE_DAYS=14
+      - GOOGLE_CLIENT_ID=1076466057181-t43acfts96fnberfng5b9ncur8uaefjt.apps.googleusercontent.com
+      - GOOGLE_SECRET=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
+      - SECRET_KEY=Wei891013
+      - REDIS_PASSWORD=Wei891013
+      - PAGE_NUMBER=10
     depends_on:
       - nginx
       - mysql
@@ -65,6 +84,7 @@ services:
       - DB_NAME=sqldb
       - USER_MAIL=open891013@gmail.com
       - USER_PWD=sbdxfzkmaxtesqec
+      - REDIS_PASSWORD=Wei891013
     volumes:
       - original_audio:/original_audio
       - original_graph:/original_graph

@@ -16,14 +16,15 @@ engine = create_engine('mysql+pymysql://{}:{}@mysql/{}'.format(os.environ.get('S
 metadata = MetaData()
 Session = scoped_session(sessionmaker(bind=engine))
 
+REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
 celery_app = Celery(
     "celery",
-    broker="redis://redis:6379/1",
-    backend="redis://redis:6379/2",
-    result_expires=3600, )
+    broker=f"redis://:{REDIS_PASSWORD}@redis:6379/1",
+    backend=f"redis://:{REDIS_PASSWORD}@redis:6379/2",
+    result_expires=3600,
+)
 
-pool = ConnectionPool(host='redis', port=6379, db=0)
-
+pool = ConnectionPool(host='redis', port=6379, db=0,password=REDIS_PASSWORD)
 class DatabaseTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         session = Session()

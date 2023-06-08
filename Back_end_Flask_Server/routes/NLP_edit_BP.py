@@ -1,3 +1,6 @@
+import os
+
+import redis
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from webargs.flaskparser import use_args
@@ -7,9 +10,11 @@ from db import db
 from models.File import File
 from models.User import User
 from tasks import NLP_edit_ASR, NLP_edit_OCR
-from utils import strid2byte, is_valid_uuid, byte2strid, decrypt,in_blacklist
+from utils import strid2byte, is_valid_uuid, byte2strid, decrypt
+
 
 nlp_edit_bp = Blueprint('NLP_edit', __name__)
+redis_db_blacklist = redis.StrictRedis(host='redis', port=6379, db=3,password=os.getenv('REDIS_PASSWORD'))
 @nlp_edit_bp.route('/api/NLP_edit/ASR/<string:file_id>',methods=['PUT'])
 @use_args(Edit_args)
 @jwt_required()
@@ -18,11 +23,11 @@ def ASR_NLP_edit(args,file_id):
     result = True
     if auth_header:
         raw_jwt_headers = auth_header.split(' ')[1]
-        result = result and in_blacklist(raw_jwt_headers)
-        print(raw_jwt_headers)
+        result = result and redis_db_blacklist.get(raw_jwt_headers)
+        
     if 'access_token_cookie' in request.cookies:
         raw_jwt_cookie = request.cookies['access_token_cookie']
-        result = result and in_blacklist(raw_jwt_cookie)
+        result = result and redis_db_blacklist.get(raw_jwt_cookie)
     if result:
         return '', 422
     if (is_valid_uuid(file_id)):
@@ -63,11 +68,10 @@ def OCR_NLP_edit(args,file_id):
     result = True
     if auth_header:
         raw_jwt_headers = auth_header.split(' ')[1]
-        result = result and in_blacklist(raw_jwt_headers)
-        print(raw_jwt_headers)
+        result = result and redis_db_blacklist.get(raw_jwt_headers)
     if 'access_token_cookie' in request.cookies:
         raw_jwt_cookie = request.cookies['access_token_cookie']
-        result = result and in_blacklist(raw_jwt_cookie)
+        result = result and redis_db_blacklist.get(raw_jwt_cookie)
     if result:
         return '', 422
     if is_valid_uuid(file_id):

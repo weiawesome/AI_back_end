@@ -10,6 +10,6 @@ def image_to_texts(file):
     image = rotate_image_based_on_exif(image)
     image = image.convert('RGB')
     np_image = np.array(image)
-    boxes = get_Boxes(np_image)
-    result = get_Prediction(image, boxes)
+    boxes,outlier = get_Boxes(np_image)
+    result = get_Prediction(image, boxes,outlier)
     return result

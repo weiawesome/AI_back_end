@@ -1,3 +1,5 @@
+import os
+
 import redis
 from flask import Blueprint
 from webargs.flaskparser import use_args
@@ -6,7 +8,7 @@ from request_schema import Email_args
 from tasks import Mail_sent
 
 mail_bp = Blueprint('Mail', __name__)
-redis_db_mail = redis.StrictRedis(host='redis', port=6379, db=0)
+redis_db_mail = redis.StrictRedis(host='redis', port=6379, db=0,password=os.getenv('REDIS_PASSWORD'))
 @mail_bp.route('/api/verification', methods=['POST'])
 @use_args(Email_args)
 def verification(args):

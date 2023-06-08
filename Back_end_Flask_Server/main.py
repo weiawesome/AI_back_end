@@ -1,8 +1,10 @@
 import os
 from datetime import timedelta
-import redis as redis
 from flask import Flask
 from flasgger import Swagger
+from oauth import oauth
+from routes.Information_BP import information_bp
+from routes.Oauth_BP import oauth_bp
 from routes.AI_predict_BP import ai_predict_bp
 from routes.Access_method_BP import access_method_bp
 from routes.Files_BP import files_bp
@@ -23,6 +25,14 @@ from models.Access_token import Access_token
 app = Flask(__name__)
 
 ##############################################################################
+#                          Set oauth (in flask)                              #
+##############################################################################
+
+app.secret_key = os.getenv('SECRET_KEY')
+app.config.update(PREFERRED_URL_SCHEME='https')
+oauth.init_app(app)
+
+##############################################################################
 #                           Set JWT setting                                  #
 ##############################################################################
 
@@ -32,6 +42,7 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True
 )
 app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
+app.config['JWT_COOKIE_SECURE']=True
 jwt = JWTManager(app)
 
 ##############################################################################
@@ -72,13 +83,6 @@ with app.app_context():
     db.create_all()
 
 ##############################################################################
-#                           Set NO-SQL(redis)                                #
-##############################################################################
-
-redis_db_files = redis.StrictRedis(host='redis', port=6379, db=1)
-redis_db_verification = redis.StrictRedis(host='redis', port=6379, db=2)
-
-##############################################################################
 #                           Set route of User                                #
 ##############################################################################
 
@@ -114,6 +118,17 @@ app.register_blueprint(files_bp)
 
 app.register_blueprint(ai_predict_bp)
 
+##############################################################################
+#                          Set route of Oauth                                #
+##############################################################################
+
+app.register_blueprint(oauth_bp)
+
+##############################################################################
+#                       Set route of Information                             #
+##############################################################################
+
+app.register_blueprint(information_bp)
 
 ##############################################################################
 #                           Set error handler                                #
