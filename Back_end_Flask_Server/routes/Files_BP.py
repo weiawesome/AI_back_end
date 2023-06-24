@@ -34,6 +34,7 @@ def files():
     user = db.session.get(User, current_user)
     items_per_page = int(os.getenv('PAGE_NUMBER'))
     page_number = request.args.get('page', 1, type=int)
+    page_number=max(1,page_number)
     total_pages=0
     files=[]
     if user:
@@ -72,6 +73,7 @@ def ASR_files():
     user = db.session.get(User, current_user)
     items_per_page = int(os.getenv('PAGE_NUMBER'))
     page_number = request.args.get('page', 1, type=int)
+    page_number=max(1,page_number)
     total_pages = 0
     files = []
     if user:
@@ -110,6 +112,7 @@ def OCR_files():
     user = db.session.get(User, current_user)
     items_per_page = int(os.getenv('PAGE_NUMBER'))
     page_number = request.args.get('page', 1, type=int)
+    page_number=max(1,page_number)
     total_pages = 0
     files = []
     if user:
@@ -165,6 +168,39 @@ def Specific_File(file_id):
         return '',404
     json_result=result.json(ensure_ascii=False)
     return json_result
+
+
+@files_bp.route('/api/files/<string:file_id>',methods=['DELETE'])
+@jwt_required()
+def Delete_Specific_File(file_id):
+    auth_header = request.headers.get('Authorization', None)
+    result = True
+    if auth_header:
+        raw_jwt_headers = auth_header.split(' ')[1]
+        result = result and redis_db_blacklist.get(raw_jwt_headers)
+
+    if 'access_token_cookie' in request.cookies:
+        raw_jwt_cookie = request.cookies['access_token_cookie']
+        result = result and redis_db_blacklist.get(raw_jwt_cookie)
+    if result:
+        return '', 422
+    if (is_valid_uuid(file_id)):
+        file_id = strid2byte(file_id)
+    else:
+        return '', 400
+    file = db.session.get(File, file_id)
+    if (file):
+        current_user = get_jwt_identity()
+        if file.mail == current_user:
+            os.remove(file.directory)
+            db.session.delete(file)
+            db.session.commit()
+            return '',201
+        else:
+            return '', 403
+
+    else:
+        return '', 404
 
 @files_bp.route('/api/files/resources/graph/<string:file_id>')
 @jwt_required()

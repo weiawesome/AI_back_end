@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Study-Savvy-Server - OpenAPI 3.0
   description: The API document for Study Savvy.
-  termsOfService: https://studysavvy.ddns.net/api
+  termsOfService: https://study-savvy.com/api
   contact:
     email: open891013@gmail.com
   version: 1.0.0
@@ -11,7 +11,7 @@ externalDocs:
   url: https://www.figma.com/file/u15EBmHQSeixvpN67B71dm/%E7%95%A2%E5%B0%88?type=design&node-id=0%3A1&t=tFdC8pcy6VSyKkBX-1
   
 servers:
-  - url: https://studysavvy.ddns.net
+  - url: https://study-savvy.com
 
 tags:
 - name: User
@@ -263,6 +263,13 @@ paths:
         - BearerAuth: [ ]
       summary: Update personal information
       description: Update personal information
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
       requestBody:
         required: true
         content:
@@ -325,6 +332,7 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -380,6 +388,7 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -434,6 +443,7 @@ paths:
           schema:
             type: integer
             default: 1
+            minimum: 1
       responses:
         '200':
           description: Successful operation
@@ -509,6 +519,33 @@ paths:
                     items:
                       type: string
                       description: The messages for OCR file.
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '403':
+          description: Forbidden.
+        '404':
+          description: Not exist.
+        '422':
+          description: JWT is invalid.
+    delete:
+      tags:
+        - Files
+      security:
+        - BearerAuth: [ ]
+      summary: Delete a file.
+      description: The file's information can be deleted, according to file_id.
+      parameters:
+        - name: file_id
+          in: path
+          description: file_id that need to be considered for filter
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Successful operation
         '400':
           description: Invalid status value
         '401':
@@ -823,8 +860,8 @@ paths:
         - AI_predict
       security:
         - BearerAuth: [ ]
-      summary: Update ASR file to application.
-      description: To update the needed details of ASR file.
+      summary: Upload ASR file to application.
+      description: To upload the needed details of ASR file.
       parameters:
         - in: header
           name: X-CSRF-TOKEN
@@ -868,8 +905,8 @@ paths:
           schema:
             type: string
           description: CSRF token
-      summary: Update OCR file to application.
-      description: To update the needed details of OCR file.
+      summary: Upload OCR file to application.
+      description: To upload the needed details of OCR file.
       requestBody:
         required: true
         content:
