@@ -80,8 +80,8 @@ def RSA_decrypt(encrypted_aes_key):
     aes_key = private_key.decrypt(
         encrypted_aes_key,
         padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
+            mgf=padding.MGF1(algorithm=hashes.SHA1()),
+            algorithm=hashes.SHA1(),
             label=None
         )
     )

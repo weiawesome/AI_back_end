@@ -254,8 +254,6 @@ paths:
           description: JWT is invalid.
         '404':
           description: Not found.
-
-  /api/information/update:
     put:
       tags:
         - Information
@@ -289,6 +287,59 @@ paths:
               example:
                 name: "wei"
                 gender: "male"
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  mail:
+                    type: string
+                  gender:
+                    type: string
+                    enum:
+                      - "male"
+                      - "female"
+                      - "other"
+        '400':
+          description: Invalid status value
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+        '404':
+          description: Not found.
+
+  /api/information/password_edit:
+    put:
+      tags:
+        - Information
+      security:
+        - BearerAuth: [ ]
+      summary: Return personal information
+      description: Return personal information
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                original_pwd:
+                  type: string
+                new_pwd:
+                  type: string
       responses:
         '200':
           description: Successful operation
@@ -359,10 +410,10 @@ paths:
                           type: string
                           description:  The file ID.
                         status:
-                          type: boolean
+                          type: string
                           description: The file's current status.
                         file_type:
-                          type: integer
+                          type: string
                           description: The file type.
 
         '400':
@@ -415,10 +466,10 @@ paths:
                           type: string
                           description: The file ID.
                         status:
-                          type: boolean
+                          type: string
                           description: The file's current status.
                         file_type:
-                          type: integer
+                          type: string
                           description:  The file type.
         '400':
           description: Invalid status value
@@ -470,10 +521,10 @@ paths:
                           type: string
                           description: The file ID.
                         status:
-                          type: boolean
+                          type: string
                           description: The file's current status.
                         file_type:
-                          type: integer
+                          type: string
                           description: The file type.
         '400':
           description: Invalid status value
@@ -920,6 +971,42 @@ paths:
                 file:
                   type: string
                   format: binary
+      responses:
+        '200':
+          description: Successful operation
+        '400':
+          description: Fail to update OCR file.
+        '401':
+          description: Not authorize.
+        '422':
+          description: JWT is invalid.
+
+  /api/predict/OCR_Text:
+    post:
+      tags:
+        - AI_predict
+      security:
+        - BearerAuth: [ ]
+      parameters:
+        - in: header
+          name: X-CSRF-TOKEN
+          required: false
+          schema:
+            type: string
+          description: CSRF token
+      summary: Upload OCR file to application.
+      description: To upload the needed details of OCR file.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                prompt:
+                  type: string
+                content:
+                  type: string
       responses:
         '200':
           description: Successful operation

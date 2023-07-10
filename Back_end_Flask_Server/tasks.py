@@ -62,6 +62,10 @@ def ASR_predict(self,id,file, prompt,api_key,access_token):
 @celery_app.task(bind=True, base=DatabaseTask)
 def OCR_predict(self,id,file, prompt,api_key,access_token):
     pass
+
+@celery_app.task(bind=True, base=DatabaseTask)
+def OCR_predict_Text(self,id,file, prompt,api_key,access_token):
+    pass
 @celery_app.task(bind=True, base=DatabaseTask)
 def NLP_edit_OCR(self,id, prompt, content,api_key,access_token):
     pass

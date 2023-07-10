@@ -88,6 +88,15 @@ def OCR_predict(self,id,file, prompt,api_key,access_token):
     return response
 
 @celery_app.task(bind=True, base=DatabaseTask)
+def OCR_predict_Text(self,id,content, prompt,api_key,access_token):
+    response = {'prompt': prompt, 'content': content, 'result': '', 'details': []}
+    if revChat_test(access_token=access_token):
+        details, result = revChat(access_token=access_token, mode='OCR', prompt=prompt, text=content)
+        response['result'] = result
+        response['details'] = details
+    return response
+
+@celery_app.task(bind=True, base=DatabaseTask)
 def NLP_edit_OCR(self,id, prompt, content,api_key,access_token):
     response = {'prompt': prompt, 'content': content, 'result': '', 'details': []}
     if revChat_test(access_token=access_token):

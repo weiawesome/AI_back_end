@@ -34,3 +34,11 @@ Information_args={
     "name":fields.Str(required=True),
     "gender":fields.Str(required=True)
 }
+Password_Edit_args={
+    "original_pwd":fields.Str(required=True),
+    "new_pwd":fields.Str(required=True),
+}
+OCR_Text_args={
+    "prompt":fields.Str(required=True),
+    "content":fields.Str(required=True)
+}
