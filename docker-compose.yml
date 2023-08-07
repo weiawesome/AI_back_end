@@ -74,20 +74,24 @@ services:
     volumes:
       - original_audio:/original_audio
       - original_graph:/original_graph
-      - ./Security:/Security
   celery:
     build:
       context: ./celery
     environment:
-      - SQL_USER=wei
-      - SQL_PWD=Wei891013
-      - DB_NAME=sqldb
-      - USER_MAIL=open891013@gmail.com
-      - USER_PWD=sbdxfzkmaxtesqec
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=wei
+      - MYSQL_PASSWORD=Wei891013
+      - MYSQL_DB=sqldb
+      - MAIL_USER=open891013@gmail.com
+      - MAIL_PASSWORD=sbdxfzkmaxtesqec
       - REDIS_PASSWORD=Wei891013
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
     volumes:
       - original_audio:/original_audio
       - original_graph:/original_graph
+      - ./Security:/Security
     deploy:
       resources:
         reservations:

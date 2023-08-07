@@ -17,6 +17,7 @@ from models.User import User
 from models.File import File
 from models.Api_key import Api_key
 from models.Access_token import Access_token
+import env
 
 ##############################################################################
 #                           Set app (in flask)                               #
@@ -28,56 +29,51 @@ app = Flask(__name__)
 #                          Set oauth (in flask)                              #
 ##############################################################################
 
-app.secret_key = os.getenv('SECRET_KEY')
-app.config.update(PREFERRED_URL_SCHEME='https')
+app.secret_key = env.SESSION_SECRET
+app.config.update(PREFERRED_URL_SCHEME="https")
 oauth.init_app(app)
 
 ##############################################################################
 #                           Set JWT setting                                  #
 ##############################################################################
 
-app.config['JWT_SECRET_KEY'] = os.environ.get('JWT_SECRET_KEY')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=int(os.getenv('EXPIRE_DAYS')))
+app.config["JWT_SECRET_KEY"] = env.JWT_SECRET
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(days=int(env.JWT_EXPIRE_DAYS))
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True
 )
-app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
-app.config['JWT_COOKIE_SECURE']=True
+app.config["JWT_TOKEN_LOCATION"] = ["headers", "cookies"]
+app.config["JWT_COOKIE_SECURE"]=True
 jwt = JWTManager(app)
 
 ##############################################################################
 #                  Set swagger(open api document) setting                    #
 ##############################################################################
 
-app.config['SWAGGER'] = {
-    'openapi': '3.0.0'
+app.config["SWAGGER"] = {
+    "openapi": "3.0.0"
 }
 swagger_config = {
     "headers": [],
     "specs": [
         {
-            "endpoint": '/api/apispec',
-            "route": '/api/docs/apispec.json',
+            "endpoint": "/api/apispec",
+            "route": "/api/docs/apispec.json",
         }
     ],
     "static_url_path": "/api/flasgger_static",
     "swagger_ui": True,
     "specs_route": "/api/docs/"
 }
-swagger = Swagger(app, config=swagger_config, template_file='openapi.yaml')
+swagger = Swagger(app, config=swagger_config, template_file="docs/openapi.yaml")
 
 ##############################################################################
 #                           Set SQL(my-sql) DB                               #
 ##############################################################################
 
-app.config['SQLALCHEMY_DATABASE_URI'] = \
-    'mysql+pymysql://{}:{}@mysql/{}' \
-        .format(
-        os.environ.get('SQL_USER'),
-        os.environ.get('SQL_PWD'),
-        os.environ.get('DB_NAME')
-    )
-app.config['SQLALCHEMY_POOL_RECYCLE'] = 299
+dsn="mysql+pymysql://{}:{}@{}/{}".format(env.MYSQL_USER,env.MYSQL_PASSWORD,env.MYSQL_ADDRESS,env.MYSQL_DB)
+app.config["SQLALCHEMY_DATABASE_URI"] = dsn
+app.config["SQLALCHEMY_POOL_RECYCLE"] = 299
 db.init_app(app)
 with app.app_context():
     db.create_all()
@@ -135,4 +131,4 @@ app.register_blueprint(information_bp)
 ##############################################################################
 @app.errorhandler(422)
 def handle_bad_request(err):
-    return '', 400
+    return "", 400
