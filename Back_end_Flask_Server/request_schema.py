@@ -36,12 +36,12 @@ Edit_args={
 
 Access_token_args={
     "access_token":fields.Str(required=True,validate=validate_empty),
-    "AES_key":fields.Str(required=True,validate=validate_empty)
+    "aes_key":fields.Str(required=True,validate=validate_empty)
 }
 
 Api_key_args={
     "api_key":fields.Str(required=True, validate=validate_empty),
-    "AES_key":fields.Str(required=True,validate=validate_empty)
+    "aes_key":fields.Str(required=True,validate=validate_empty)
 }
 
 Email_args={
@@ -53,8 +53,8 @@ Information_args={
     "gender": fields.Str(required=True, validate=validate_gender)
 }
 Password_Edit_args={
-    "original_pwd":fields.Str(required=True,validate=[validate.Length(min=8), lambda p: not p.strip()]),
-    "new_pwd":fields.Str(required=True,validate=[validate.Length(min=8), lambda p: not p.strip()])
+    "current_password":fields.Str(required=True,validate=[validate.Length(min=8), lambda p: not p.strip()]),
+    "edit_password":fields.Str(required=True,validate=[validate.Length(min=8), lambda p: not p.strip()])
 }
 OCR_Text_args={
     "prompt":fields.Str(required=True),

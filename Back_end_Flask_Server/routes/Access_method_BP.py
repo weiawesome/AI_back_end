@@ -29,7 +29,7 @@ def Access_token_route(args):
         return "", 422
     current_user = get_jwt_identity()
     token = args["access_token"]
-    aes_key = args["AES_key"]
+    aes_key = args["aes_key"]
     token_db = db.session.get(User, current_user).access_token
     if token_db:
         token_db.token=token
@@ -59,7 +59,7 @@ def Api_key_route(args):
         return "", 422
     current_user = get_jwt_identity()
     key = args["api_key"]
-    aes_key = args["AES_key"]
+    aes_key = args["aes_key"]
     key_db = db.session.get(User, current_user).api_key
     if key_db:
         key_db.key = key

@@ -75,8 +75,8 @@ def password_edit(args):
     user = db.session.get(User, current_user)
     if user is None:
         return "", 404
-    original_pwd=args["original_pwd"]
-    new_pwd = args["new_pwd"]
+    original_pwd=args["current_password"]
+    new_pwd = args["edit_password"]
     salt = user.salt
     hash_pwd = user.password
     if verify_password(original_pwd, hash_pwd, salt):
