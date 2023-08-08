@@ -52,7 +52,7 @@ def ASR_predict_route():
             db_access_token=user.access_token
             db_api_key=user.api_key
 
-            ASR_predict.delay(id=file_id,file=filepath,prompt=prompt,api_key=db_api_key.key,access_token=db_access_token.token,key_api_key=db_api_key.AES_key,key_access_token=db_access_token.AES_key)
+            ASR_predict.delay(id=file_id, file=filepath, prompt=prompt, api_key=db_api_key.key, access_token=db_access_token.token, key_api_key=db_api_key.aes_key, key_access_token=db_access_token.aes_key)
 
             new_file=File(id=file_id, user_mail=user.user_mail, status="PENDING", type="ASR", resource=filepath,)
             db.session.add(new_file)
@@ -97,7 +97,7 @@ def OCR_predict_route():
             db_access_token=user.access_token
             db_api_key=user.api_key
 
-            OCR_predict.delay(id=file_id,file=filepath,prompt=prompt,api_key=db_api_key.key,access_token=db_access_token.token,key_api_key=db_api_key.AES_key,key_access_token=db_access_token.AES_key)
+            OCR_predict.delay(id=file_id, file=filepath, prompt=prompt, api_key=db_api_key.key, access_token=db_access_token.token, key_api_key=db_api_key.aes_key, key_access_token=db_access_token.aes_key)
 
 
             new_file=File(id=file_id, user_mail=user.user_mail, status="PENDING", type="OCR", resource=filepath)
@@ -132,7 +132,7 @@ def OCR_predict_Text_route(args):
     db_api_key = user.api_key
 
     file_id = str(uuid.uuid4())
-    OCR_predict_Text.delay(id=file_id,content=content , prompt=prompt, api_key=db_api_key.key, access_token=db_access_token.token,key_api_key=db_api_key.AES_key,key_access_token=db_access_token.AES_key)
+    OCR_predict_Text.delay(id=file_id, content=content, prompt=prompt, api_key=db_api_key.key, access_token=db_access_token.token, key_api_key=db_api_key.aes_key, key_access_token=db_access_token.aes_key)
 
     new_file = File(id=file_id, user_mail=user.user_mail, status="PENDING", type="OCR", resource=PURE_TEXT)
     db.session.add(new_file)

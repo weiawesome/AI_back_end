@@ -33,11 +33,11 @@ def Access_token_route(args):
     token_db = db.session.get(User, current_user).access_token
     if token_db:
         token_db.token=token
-        token_db.AES_key=aes_key
+        token_db.aes_key=aes_key
         db.session.commit()
     else:
         token_id=str(uuid.uuid4())
-        new_token = Access_token(id=token_id,user_mail=current_user,token=token,AES_key=aes_key)
+        new_token = Access_token(id=token_id,user_mail=current_user,token=token,aes_key=aes_key)
         db.session.add(new_token)
         db.session.commit()
     return ""
@@ -63,11 +63,11 @@ def Api_key_route(args):
     key_db = db.session.get(User, current_user).api_key
     if key_db:
         key_db.key = key
-        key_db.AES_key = aes_key
+        key_db.aes_key = aes_key
         db.session.commit()
     else:
         key_id=str(uuid.uuid4())
-        new_key = Api_key(id=key_id,user_mail=current_user, key=key, AES_key=aes_key)
+        new_key = Api_key(id=key_id,user_mail=current_user, key=key, aes_key=aes_key)
         db.session.add(new_key)
         db.session.commit()
     return ""

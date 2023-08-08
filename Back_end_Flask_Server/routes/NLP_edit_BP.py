@@ -40,7 +40,7 @@ def ASR_NLP_edit(args,file_id):
             db_access_token = user.access_token
             db_api_key = user.api_key
 
-            NLP_edit_ASR.delay(id=file_id,prompt=prompt,content=content,api_key=db_api_key.key,access_token=db_access_token.token,key_api_key=db_api_key.AES_key,key_access_token=db_access_token.AES_key)
+            NLP_edit_ASR.delay(id=file_id, prompt=prompt, content=content, api_key=db_api_key.key, access_token=db_access_token.token, key_api_key=db_api_key.aes_key, key_access_token=db_access_token.aes_key)
             file.status="PENDING"
             db.session.commit()
         else:
@@ -75,7 +75,7 @@ def OCR_NLP_edit(args,file_id):
             db_access_token = user.access_token
             db_api_key = user.api_key
 
-            NLP_edit_OCR.delay(id=file_id, prompt=prompt, content=content, api_key=db_api_key.key,access_token=db_access_token.token,key_api_key=db_api_key.AES_key,key_access_token=db_access_token.AES_key)
+            NLP_edit_OCR.delay(id=file_id, prompt=prompt, content=content, api_key=db_api_key.key, access_token=db_access_token.token, key_api_key=db_api_key.aes_key, key_access_token=db_access_token.aes_key)
             file.status = "PENDING"
             db.session.commit()
         else:
