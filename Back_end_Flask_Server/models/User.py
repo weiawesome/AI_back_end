@@ -1,11 +1,11 @@
-from sqlalchemy import Enum
+from sqlalchemy import Enum,LongText
 from sqlalchemy.orm import relationship
 from db import db
 
 class User(db.Model):
     __tablename__ = "users"
     mail = db.Column(db.String(254), primary_key=True)
-    password = db.Column(db.String(64), nullable=True)
+    password = db.Column(LongText, nullable=True)
     salt = db.Column(db.BINARY(16), nullable=True)
     name = db.Column(db.String(50), nullable=False)
     gender = db.Column(Enum("male", "female", "other"),default="other", nullable=False)
