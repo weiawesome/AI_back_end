@@ -12,7 +12,7 @@ import env
 
 files_bp = Blueprint("Files", __name__)
 redis_db_blacklist = redis.StrictRedis(host=env.REDIS_HOST, port=int(env.REDIS_PORT), db=int(env.REDIS_DB),password=env.REDIS_PASSWORD)
-@files_bp.route("/api/files", methods=["GET"])
+@files_bp.route("/api/Files", methods=["GET"])
 @jwt_required()
 def files():
     auth_header = request.headers.get("Authorization", None)
@@ -51,7 +51,7 @@ def files():
     result = Files_response(total_pages=total_pages,current_page=page_number,data=result_list)
     json_result = result.json(ensure_ascii=False)
     return json_result
-@files_bp.route("/api/files/ASR", methods=["GET"])
+@files_bp.route("/api/Files/ASR", methods=["GET"])
 @jwt_required()
 def ASR_files():
     auth_header = request.headers.get("Authorization", None)
@@ -90,7 +90,7 @@ def ASR_files():
     result = Files_response(total_pages=total_pages, current_page=page_number, data=result_list)
     json_result = result.json(ensure_ascii=False)
     return json_result
-@files_bp.route("/api/files/OCR", methods=["GET"])
+@files_bp.route("/api/Files/OCR", methods=["GET"])
 @jwt_required()
 def OCR_files():
     auth_header = request.headers.get("Authorization", None)
@@ -129,7 +129,7 @@ def OCR_files():
     result = Files_response(total_pages=total_pages, current_page=page_number, data=result_list)
     json_result = result.json(ensure_ascii=False)
     return json_result
-@files_bp.route("/api/files/<string:file_id>")
+@files_bp.route("/api/Files/<string:file_id>")
 @jwt_required()
 def Specific_File(file_id):
     auth_header = request.headers.get("Authorization", None)
@@ -164,7 +164,7 @@ def Specific_File(file_id):
     return json_result
 
 
-@files_bp.route("/api/files/<string:file_id>",methods=["DELETE"])
+@files_bp.route("/api/Files/<string:file_id>",methods=["DELETE"])
 @jwt_required()
 def Delete_Specific_File(file_id):
     auth_header = request.headers.get("Authorization", None)
@@ -194,7 +194,7 @@ def Delete_Specific_File(file_id):
     else:
         return "", 404
 
-@files_bp.route("/api/files/resources/graph/<string:file_id>")
+@files_bp.route("/api/Files/resources/graph/<string:file_id>")
 @jwt_required()
 def graph_File(file_id):
     auth_header = request.headers.get("Authorization", None)
@@ -229,7 +229,7 @@ def graph_File(file_id):
             return "",404
     return "", 404
 
-@files_bp.route("/api/files/resources/audio/<string:file_id>")
+@files_bp.route("/api/Files/resources/audio/<string:file_id>")
 @jwt_required()
 def audio_File(file_id):
     auth_header = request.headers.get("Authorization", None)

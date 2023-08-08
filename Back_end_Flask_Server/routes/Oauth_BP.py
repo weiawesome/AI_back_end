@@ -8,13 +8,13 @@ from utils import google_jwt_auth
 
 oauth_bp = Blueprint("Oauth", __name__)
 
-@oauth_bp.route("/api/oauth/web/google")
+@oauth_bp.route("/api/Oauth/web/google")
 def signin_web_google():
     google = oauth.create_client("google")
     redirect_uri = url_for("Oauth.authorize_google", _external=True)
     redirect_uri=redirect_uri.replace("http","https")
     return google.authorize_redirect(redirect_uri,prompt="select_account")
-@oauth_bp.route("/api/oauth/authorize/google", methods=["GET"])
+@oauth_bp.route("/api/Oauth/authorize/google", methods=["GET"])
 def authorize_google():
     try:
         google = oauth.create_client("google")
@@ -42,7 +42,7 @@ def authorize_google():
         return response
     except:
         return "",400
-@oauth_bp.route("/api/oauth/app/google",methods=["GET"])
+@oauth_bp.route("/api/Oauth/app/google",methods=["GET"])
 def signin_app_google():
     auth_header = request.headers.get("Authorization", None)
     if auth_header:

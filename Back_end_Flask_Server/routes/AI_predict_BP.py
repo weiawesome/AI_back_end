@@ -14,7 +14,7 @@ import env
 
 ai_predict_bp = Blueprint("AI_predict", __name__)
 redis_db_blacklist = redis.StrictRedis(host=env.REDIS_HOST, port=int(env.REDIS_PORT), db=int(env.REDIS_DB),password=env.REDIS_PASSWORD)
-@ai_predict_bp.route("/api/predict/ASR", methods=["POST"])
+@ai_predict_bp.route("/api/Predict/ASR", methods=["POST"])
 @jwt_required()
 def ASR_predict_route():
     auth_header = request.headers.get("Authorization", None)
@@ -61,7 +61,7 @@ def ASR_predict_route():
         return "File uploaded successfully, but not correct format.", 200
     else:
         return "File type not allowed", 400
-@ai_predict_bp.route("/api/predict/OCR", methods=["POST"])
+@ai_predict_bp.route("/api/Predict/OCR", methods=["POST"])
 @jwt_required()
 def OCR_predict_route():
     auth_header = request.headers.get("Authorization", None)
@@ -109,7 +109,7 @@ def OCR_predict_route():
     else:
         return "File type not allowed", 400
 
-@ai_predict_bp.route("/api/predict/OCR/text", methods=["POST"])
+@ai_predict_bp.route("/api/Predict/OCR_Text", methods=["POST"])
 @use_args(OCR_Text_args)
 @jwt_required()
 def OCR_predict_Text_route(args):

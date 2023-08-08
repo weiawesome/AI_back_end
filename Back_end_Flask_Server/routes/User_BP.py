@@ -11,7 +11,7 @@ import env
 
 user_bp = Blueprint("User", __name__)
 redis_db_blacklist = redis.StrictRedis(host=env.REDIS_HOST, port=int(env.REDIS_PORT), db=int(env.REDIS_DB),password=env.REDIS_PASSWORD)
-@user_bp.route("/api/login/web", methods=["POST"])
+@user_bp.route("/api/User/login/web", methods=["POST"])
 @use_args(Login_args)
 def login_web(args):
     mail=args["mail"]
@@ -29,7 +29,7 @@ def login_web(args):
     set_access_cookies(response, token)
     return response
 
-@user_bp.route("/api/login/app", methods=["POST"])
+@user_bp.route("/api/User/login/app", methods=["POST"])
 @use_args(Login_args)
 def login_app(args):
     mail=args["mail"]
@@ -47,7 +47,7 @@ def login_app(args):
     json_result = result.json(ensure_ascii=False)
     return json_result
 
-@user_bp.route("/api/logout",methods=["DELETE"])
+@user_bp.route("/api/User/logout",methods=["DELETE"])
 @jwt_required()
 def logout():
     auth_header = request.headers.get("Authorization", None)
@@ -70,7 +70,7 @@ def logout():
     unset_jwt_cookies(response)
     return response,201
 
-@user_bp.route("/api/signup",methods=["POST"])
+@user_bp.route("/api/User/signup",methods=["POST"])
 @use_args(Signup_args)
 def signup(args):
     name=args["name"]

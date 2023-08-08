@@ -11,7 +11,7 @@ import env
 
 information_bp = Blueprint("Information", __name__)
 redis_db_blacklist = redis.StrictRedis(host=env.REDIS_HOST, port=int(env.REDIS_PORT), db=int(env.REDIS_DB),password=env.REDIS_PASSWORD)
-@information_bp.route("/api/information", methods=["GET"])
+@information_bp.route("/api/Information", methods=["GET"])
 @jwt_required()
 def information():
     auth_header = request.headers.get("Authorization", None)
@@ -32,7 +32,7 @@ def information():
     json_result = result.json(ensure_ascii=False)
     return json_result
 
-@information_bp.route("/api/information/", methods=["PUT"])
+@information_bp.route("/api/Information/", methods=["PUT"])
 @jwt_required()
 @use_args(Information_args)
 def information_update(args):
@@ -57,7 +57,7 @@ def information_update(args):
     db.session.commit()
     return "",200
 
-@information_bp.route("/api/information/password_edit", methods=["PUT"])
+@information_bp.route("/api/Information/password_edit", methods=["PUT"])
 @jwt_required()
 @use_args(Password_Edit_args)
 def password_edit(args):
