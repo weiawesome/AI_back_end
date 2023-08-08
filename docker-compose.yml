@@ -57,16 +57,22 @@ services:
     build:
       context: ./Back_end_Flask_Server
     environment:
-      - JWT_SECRET_KEY=Wei891013
-      - SQL_USER=wei
-      - SQL_PWD=Wei891013
-      - DB_NAME=sqldb
-      - EXPIRE_DAYS=14
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=wei
+      - MYSQL_PASSWORD=Wei891013
+      - MYSQL_DB=sqldb
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=Wei891013
+      - REDIS_DB=0
+      - JWT_SECRET=Wei891013
+      - JWT_EXPIRE_DAYS=14
+      - PAGE_SIZE=10
       - GOOGLE_CLIENT_ID=1076466057181-t43acfts96fnberfng5b9ncur8uaefjt.apps.googleusercontent.com
       - GOOGLE_SECRET=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
-      - SECRET_KEY=Wei891013
-      - REDIS_PASSWORD=Wei891013
-      - PAGE_NUMBER=10
+      - GOOGLE_SESSION_SECRET=Wei891013
+      - DIRECTORY_AUDIO=/original_audio
+      - DIRECTORY_GRAPH=/original_graph
     depends_on:
       - nginx
       - mysql

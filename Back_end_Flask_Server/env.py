@@ -18,7 +18,7 @@ PAGE_SIZE=os.environ.get("PAGE_SIZE","0")
 
 GOOGLE_CLIENT_ID=os.environ.get("GOOGLE_CLIENT_ID","DefaultGoogleClientId")
 GOOGLE_SECRET=os.environ.get("GOOGLE_SECRET","DefaultGoogleSecret")
-SESSION_SECRET=os.environ.get("SESSION_SECRET","DefaultSessionSecret")
+GOOGLE_SESSION_SECRET=os.environ.get("GOOGLE_SESSION_SECRET", "DefaultSessionSecret")
 
-DIRECTORY_AUDIO=os.environ.get("DIRECTORY_AUDIO", "DefaultDirectoryAudio")
-DIRECTORY_GRAPH=os.environ.get("DIRECTORY_GRAPH", "DefaultDirectoryGraph")
+DIRECTORY_AUDIO=os.environ.get("DIRECTORY_AUDIO", "/DefaultDirectoryAudio")
+DIRECTORY_GRAPH=os.environ.get("DIRECTORY_GRAPH", "/DefaultDirectoryGraph")

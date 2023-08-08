@@ -1,29 +1,30 @@
-import random
-import string
 from celery import Celery
 from sqlalchemy import create_engine, MetaData, Table, update
 from sqlalchemy.orm import scoped_session, sessionmaker
-from models.User import User
-from models.Access_token import Access_token
-from models.Api_key import Api_key
 from redis import Redis, ConnectionPool
 from models.File import File
-from utils import strid2byte
 from celery import Task
-import os
+import env
 
-engine = create_engine("mysql+pymysql://{}:{}@mysql/{}".format(os.environ.get("SQL_USER"),os.environ.get("SQL_PWD"),os.environ.get("DB_NAME")))
+dsn="mysql+pymysql://{}:{}@{}/{}".format(env.MYSQL_USER,env.MYSQL_PASSWORD,env.MYSQL_ADDRESS,env.MYSQL_DB)
+
+engine = create_engine(dsn)
 metadata = MetaData()
 Session = scoped_session(sessionmaker(bind=engine))
 
-REDIS_PASSWORD = os.getenv("REDIS_PASSWORD")
+REDIS_PASSWORD = env.REDIS_PASSWORD
+REDIS_ADDRESS  =  env.REDIS_ADDRESS
+REDIS_HOST  =  env.REDIS_HOST
+REDIS_PORT  =  env.REDIS_PORT
+REDIS_DB  =  env.REDIS_DB
+
 celery_app = Celery(
     "celery",
-    broker=f"redis://:{REDIS_PASSWORD}@redis:6379/1",
+    broker="redis://:{}@{}/{}".format(REDIS_PASSWORD,REDIS_ADDRESS,REDIS_DB),
     result_expires=3600,
 )
 
-pool = ConnectionPool(host="redis", port=6379, db=0,password=REDIS_PASSWORD)
+pool = ConnectionPool(host=REDIS_HOST, port=int(REDIS_PORT), db=int(REDIS_DB),password=REDIS_PASSWORD)
 class DatabaseTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         session = Session()

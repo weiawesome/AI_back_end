@@ -1,3 +1,4 @@
+from webargs import fields, validate
 def validate_name(value):
     if not value.strip():
         raise validate.ValidationError("Name cannot be empty or contain only whitespace.")

@@ -29,7 +29,7 @@ app = Flask(__name__)
 #                          Set oauth (in flask)                              #
 ##############################################################################
 
-app.secret_key = env.SESSION_SECRET
+app.secret_key = env.GOOGLE_SESSION_SECRET
 app.config.update(PREFERRED_URL_SCHEME="https")
 oauth.init_app(app)
 

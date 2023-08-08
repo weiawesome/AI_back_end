@@ -7,7 +7,7 @@ from db import db
 from models.File import File,PURE_TEXT
 from models.User import User
 from response_schema import File_status, Files_response, Specific_File_response
-from utils import is_valid_uuid, strid2byte,byte2strid
+from utils import is_valid_uuid
 import env
 
 files_bp = Blueprint("Files", __name__)

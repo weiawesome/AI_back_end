@@ -1,11 +1,9 @@
 import random
 import string
 from email.message import EmailMessage
-
 from celery import Celery
 from sqlalchemy import create_engine, MetaData, Table, update
 from sqlalchemy.orm import scoped_session, sessionmaker
-
 from mail_content import getMailContent
 from redis import Redis, ConnectionPool
 from models.File import File

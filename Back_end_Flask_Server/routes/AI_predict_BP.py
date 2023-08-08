@@ -8,7 +8,6 @@ from werkzeug.utils import secure_filename
 from db import db
 from models.File import File,PURE_TEXT
 from models.User import User
-from utils import decrypt, strid2byte
 from tasks import ASR_predict,OCR_predict,OCR_predict_Text
 from request_schema import OCR_Text_args
 import env

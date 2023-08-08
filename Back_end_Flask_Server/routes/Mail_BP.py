@@ -1,4 +1,3 @@
-import os
 import redis
 from flask import Blueprint
 from webargs.flaskparser import use_args
