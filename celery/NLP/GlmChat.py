@@ -4,8 +4,8 @@ from NLP.utils import get_default_prompt, split_content, get_default_details_pro
 
 
 def glmChat(mode,prompt,text):
-    if (len(prompt) == 0):
-        prompt = get_default_prompt(mode)
+
+    prompt = get_default_prompt(mode,prompt)
 
     revision = "main"
     tokenizer = AutoTokenizer.from_pretrained("THUDM/chatglm-6b-int4", trust_remote_code=True, revision=revision)

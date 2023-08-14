@@ -5,8 +5,8 @@ from NLP.utils import get_default_prompt, split_content, openai_continue_Chat, o
 
 
 def openaiChat(api_key,mode,prompt,text):
-    if (len(prompt) == 0):
-        prompt = get_default_prompt(mode)
+
+    prompt = get_default_prompt(mode,prompt)
 
 
     openai.api_key = api_key

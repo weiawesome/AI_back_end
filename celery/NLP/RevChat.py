@@ -3,10 +3,13 @@ from NLP.utils import split_content, get_default_prompt, get_default_details_pro
     continue_Chat
 
 def revChat(access_token,mode,prompt,text):
-    if(len(prompt)==0):
-        prompt=get_default_prompt(mode)
 
-    chatbot = Chatbot(config={"access_token": access_token})
+    prompt=get_default_prompt(mode,prompt)
+
+    chatbot = Chatbot(config={
+        "model": "gpt-3.5-mobile",
+        "access_token": access_token
+    })
 
     text = split_content(mode,text)
 
@@ -31,10 +34,10 @@ def revChat(access_token,mode,prompt,text):
 
 def revChat_test(access_token):
     try:
-        chatbot = Chatbot(config={"access_token": access_token})
+        chatbot = Chatbot(config={"model":"gpt-3.5-mobile","access_token": access_token})
         continue_Chat(chatbot, 'hello')
         conv_id = chatbot.conversation_id
         chatbot.delete_conversation(conv_id)
+        return True
     except:
         return False
-    return True

@@ -1,21 +1,46 @@
 version: '3'
 services:
+  go:
+    build:
+      context: study_savvy_api_go
+    restart: always
+    environment:
+      JWT_EXPIRE_DAYS: 14
+      JWT_ISSUER: Study-Savvy
+      JWT_SECRET: Wei891013
+
+      MYSQL_DB: sqldb
+      MYSQL_IP: mysql
+      MYSQL_PASSWORD: Wei891013
+      MYSQL_PORT: 3306
+      MYSQL_USER: wei
+
+      PAGE_SIZE: 10
+
+      REDIS_IP: redis
+      REDIS_PASSWORD: Wei891013
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+
+      CELERY_TASK: tasks
+
+      DIRECTORY_AUDIO: /original_audio
+      DIRECTORY_GRAPH: /original_graph
+    volumes:
+      - original_audio:/original_audio
+      - original_graph:/original_graph
+    depends_on:
+      - nginx
+      - mysql
+      - redis
   nginx:
     build:
       context: ./nginx
+    restart: always
     ports:
-      - "80:80"
       - "443:443"
     volumes:
       - ./SSL:/SSL
-
-  redis:
-    build:
-      context: ./redis
-    volumes:
-      - redis_data:/data
-    environment:
-      - REDIS_PASSWORD=Wei891013
 
   redis_backup:
     build:
@@ -26,47 +51,44 @@ services:
       - redis
     environment:
       - REDIS_PASSWORD=Wei891013
+  redis:
+    image: redis:latest
+    command: redis-server --requirepass Wei891013
+    volumes:
+      - redis_data:/data
 
   mysql:
-    build:
-      context: ./my_sql
+    image: mysql:latest
     volumes:
       - my_sql_data:/var/lib/mysql
       - ./SSL:/SSL
     environment:
       - MYSQL_ROOT_PASSWORD=Wei891013
-      - DATABASE_NAME=sqldb
-      - DATABASE_USER=wei
-      - DATABASE_PASS=Wei891013
-
-  my_sql_backup:
-    build:
-      context: my_sql_backup
-    volumes:
-      - my_sql_backup_volume:/backup
-    environment:
-      MYSQL_HOST: mysql
-      MYSQL_USER: root
-      MYSQL_PASSWORD: Wei891013
-      MYSQL_DATABASE: sqldb
-    depends_on:
-      - mysql
-
+      - MYSQL_DATABASE=sqldb
+      - MYSQL_USER=wei
+      - MYSQL_PASSWORD=Wei891013
 
   flask:
     build:
       context: ./Back_end_Flask_Server
+    restart: always
     environment:
-      - JWT_SECRET_KEY=Wei891013
-      - SQL_USER=wei
-      - SQL_PWD=Wei891013
-      - DB_NAME=sqldb
-      - EXPIRE_DAYS=14
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=wei
+      - MYSQL_PASSWORD=Wei891013
+      - MYSQL_DB=sqldb
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=Wei891013
+      - REDIS_DB=0
+      - JWT_SECRET=Wei891013
+      - JWT_EXPIRE_DAYS=14
+      - PAGE_SIZE=10
       - GOOGLE_CLIENT_ID=1076466057181-t43acfts96fnberfng5b9ncur8uaefjt.apps.googleusercontent.com
       - GOOGLE_SECRET=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
-      - SECRET_KEY=Wei891013
-      - REDIS_PASSWORD=Wei891013
-      - PAGE_NUMBER=10
+      - GOOGLE_SESSION_SECRET=Wei891013
+      - DIRECTORY_AUDIO=/original_audio
+      - DIRECTORY_GRAPH=/original_graph
     depends_on:
       - nginx
       - mysql
@@ -74,20 +96,25 @@ services:
     volumes:
       - original_audio:/original_audio
       - original_graph:/original_graph
-      - ./Security:/Security
   celery:
     build:
       context: ./celery
+    restart: always
     environment:
-      - SQL_USER=wei
-      - SQL_PWD=Wei891013
-      - DB_NAME=sqldb
-      - USER_MAIL=open891013@gmail.com
-      - USER_PWD=sbdxfzkmaxtesqec
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=wei
+      - MYSQL_PASSWORD=Wei891013
+      - MYSQL_DB=sqldb
+      - MAIL_USER=open891013@gmail.com
+      - MAIL_PASSWORD=sbdxfzkmaxtesqec
       - REDIS_PASSWORD=Wei891013
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
     volumes:
       - original_audio:/original_audio
       - original_graph:/original_graph
+      - ./Security:/Security
     deploy:
       resources:
         reservations:
