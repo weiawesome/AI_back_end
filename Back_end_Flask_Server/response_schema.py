@@ -12,7 +12,7 @@ class File_status(BaseModel):
 class Files_response(BaseModel):
     total_pages: int
     current_page: int
-    datas: List[File_status]
+    data: List[File_status]
 class Specific_File_response(BaseModel):
     prompt:str
     content:str

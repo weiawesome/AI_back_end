@@ -1,35 +1,35 @@
-import random
-import string
 from celery import Celery
-from sqlalchemy import create_engine, MetaData, Table, update
+from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import scoped_session, sessionmaker
-from models.User import User
-from models.Access_token import Access_token
-from models.Api_key import Api_key
-from redis import Redis, ConnectionPool
+from redis import ConnectionPool
 from models.File import File
-from utils import strid2byte
 from celery import Task
-import os
+import env
 
-engine = create_engine('mysql+pymysql://{}:{}@mysql/{}'.format(os.environ.get('SQL_USER'),os.environ.get('SQL_PWD'),os.environ.get('DB_NAME')))
+dsn="mysql+pymysql://{}:{}@{}/{}".format(env.MYSQL_USER, env.MYSQL_PASSWORD, env.MYSQL_ADDRESS, env.MYSQL_DB)
+
+engine = create_engine(dsn)
 metadata = MetaData()
 Session = scoped_session(sessionmaker(bind=engine))
 
-REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
+REDIS_PASSWORD = env.REDIS_PASSWORD
+REDIS_ADDRESS  =  env.REDIS_ADDRESS
+REDIS_HOST  =  env.REDIS_HOST
+REDIS_PORT  =  env.REDIS_PORT
+REDIS_DB  =  env.REDIS_DB
+
 celery_app = Celery(
     "celery",
-    broker=f"redis://:{REDIS_PASSWORD}@redis:6379/1",
-    backend=f"redis://:{REDIS_PASSWORD}@redis:6379/2",
+    broker="redis://:{}@{}/{}".format(REDIS_PASSWORD,REDIS_ADDRESS,REDIS_DB),
     result_expires=3600,
 )
 
-pool = ConnectionPool(host='redis', port=6379, db=0,password=REDIS_PASSWORD)
+pool = ConnectionPool(host=REDIS_HOST, port=int(REDIS_PORT), db=int(REDIS_DB),password=REDIS_PASSWORD)
 class DatabaseTask(Task):
     def on_success(self, retval, task_id, args, kwargs):
         session = Session()
         try:
-            task_result = session.get(File, strid2byte(kwargs['id']))
+            task_result = session.get(File, kwargs["id"])
             if task_result is not None:
                 task_result.status = "SUCCESS"
                 task_result.result = retval
@@ -41,9 +41,9 @@ class DatabaseTask(Task):
             Session.close()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
-        session = Session()  # 創建一個新的 session
+        session = Session()
         try:
-            task_result = session.get(File, strid2byte(kwargs['id']))
+            task_result = session.get(File, kwargs["id"])
             if task_result is not None:
                 task_result.status = "FAILURE"
                 session.commit()
@@ -55,25 +55,25 @@ class DatabaseTask(Task):
 
 
 @celery_app.task(bind=True, base=DatabaseTask)
-def ASR_predict(self,id,file, prompt,api_key,access_token):
+def ASR_predict(self,id,file, prompt,api_key,access_token,key_api_key,key_access_token):
     pass
 
 
 @celery_app.task(bind=True, base=DatabaseTask)
-def OCR_predict(self,id,file, prompt,api_key,access_token):
+def OCR_predict(self,id,file, prompt,api_key,access_token,key_api_key,key_access_token):
     pass
 
 @celery_app.task(bind=True, base=DatabaseTask)
-def OCR_predict_Text(self,id,file, prompt,api_key,access_token):
+def OCR_predict_Text(self,id,content, prompt,api_key,access_token,key_api_key,key_access_token):
     pass
 @celery_app.task(bind=True, base=DatabaseTask)
-def NLP_edit_OCR(self,id, prompt, content,api_key,access_token):
+def NLP_edit_OCR(self,id,content, prompt,api_key,access_token,key_api_key,key_access_token):
     pass
 
 
 
 @celery_app.task(bind=True, base=DatabaseTask)
-def NLP_edit_ASR(self,id, prompt, content,api_key,access_token):
+def NLP_edit_ASR(self,id,content, prompt,api_key,access_token,key_api_key,key_access_token):
     pass
 
 
